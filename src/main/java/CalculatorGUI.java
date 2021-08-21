@@ -40,7 +40,7 @@ public class CalculatorGUI extends JFrame{
         numberDisplayPanel = new JPanel();
         numberDisplayPanel.setLayout(new GridLayout(0,1));
 
-        postExpressionLabel = new JLabel("Hell");
+        postExpressionLabel = new JLabel("");
         postExpressionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
         expressionField = new JTextField(DISPLAY_TEXT_COLUMNS);
@@ -53,7 +53,15 @@ public class CalculatorGUI extends JFrame{
     }
 
     private void initButtons(){
-        buttonManager = new ButtonManager();
+        buttonManager = new ButtonManager(this);
         add(buttonManager);
+    }
+
+    public JTextField getExpressionField(){
+        return expressionField;
+    }
+
+    public JLabel getPostExpressionLabel(){
+        return postExpressionLabel;
     }
 }

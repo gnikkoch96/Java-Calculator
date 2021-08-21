@@ -3,17 +3,18 @@
     Created By: Nikko Chan
 */
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ButtonManager extends JPanel implements ActionListener {
-    private HashMap<Character, JButton> numberButtons;
+    private CalculatorGUI calculator;
 
-    public ButtonManager(){
+    public ButtonManager(CalculatorGUI calculator){
+        this.calculator = calculator;
         setLayout(new GridLayout(0,5));
         addButtons();
     }
@@ -106,6 +107,11 @@ public class ButtonManager extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        String action = e.getActionCommand();
 
+        // easier way to check if the button pressed was numeric
+        if(StringUtils.isNumeric(action)){
+            calculator.getExpressionField().setText(calculator.getExpressionField().getText() + action);
+        }
     }
 }
