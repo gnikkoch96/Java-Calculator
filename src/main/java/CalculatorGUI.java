@@ -8,8 +8,9 @@ import java.awt.*;
 
 public class CalculatorGUI extends JFrame{
     private static final String FRAME_TITLE = "Java Calculator";
-    private static final int FRAME_WIDTH = 335;
-    private static final int FRAME_HEIGHT = 535;
+    private static final int FRAME_WIDTH = 350;
+    private static final int FRAME_HEIGHT = 260;
+    private static final int DISPLAY_TEXT_COLUMNS = 25;
 
     private JPanel numberDisplayPanel;
     private ButtonManager buttonManager;
@@ -22,6 +23,7 @@ public class CalculatorGUI extends JFrame{
 
         // JFrame Properties
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
         setSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         setLocationRelativeTo(null);
         setResizable(false);
@@ -36,25 +38,22 @@ public class CalculatorGUI extends JFrame{
 
     private void initDisplayFields(){
         numberDisplayPanel = new JPanel();
-//        numberDisplayPanel.setLayout(new BorderLayout());
+        numberDisplayPanel.setLayout(new GridLayout(0,1));
 
-        postExpressionLabel = new JLabel("  ");
+        postExpressionLabel = new JLabel("Hell");
         postExpressionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        expressionField = new JTextField();
+        expressionField = new JTextField(DISPLAY_TEXT_COLUMNS);
         expressionField.setHorizontalAlignment(SwingConstants.RIGHT);
 
-//        numberDisplayPanel.add(postExpressionLabel, BorderLayout.NORTH);
-//        numberDisplayPanel.add(expressionField, BorderLayout.SOUTH);
         numberDisplayPanel.add(postExpressionLabel);
         numberDisplayPanel.add(expressionField);
 
-        add(numberDisplayPanel, BorderLayout.CENTER);
-
+        add(numberDisplayPanel);
     }
 
     private void initButtons(){
         buttonManager = new ButtonManager();
-        add(buttonManager, BorderLayout.SOUTH);
+        add(buttonManager);
     }
 }
