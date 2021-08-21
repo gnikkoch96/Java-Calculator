@@ -47,12 +47,12 @@ public class CalculatorGUI extends JFrame{
         numberDisplayPanel.add(postExpressionLabel, BorderLayout.NORTH);
         numberDisplayPanel.add(expressionField, BorderLayout.CENTER);
 
-        add(numberDisplayPanel, BorderLayout.NORTH);
+        add(numberDisplayPanel, BorderLayout.CENTER);
 
     }
 
     private void initButtons(){
         buttonManager = new ButtonManager();
-        add(buttonManager);
+        add(buttonManager, BorderLayout.SOUTH);
     }
 }
