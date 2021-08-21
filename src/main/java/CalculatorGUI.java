@@ -36,7 +36,7 @@ public class CalculatorGUI extends JFrame{
 
     private void initDisplayFields(){
         numberDisplayPanel = new JPanel();
-        numberDisplayPanel.setLayout(new BorderLayout());
+//        numberDisplayPanel.setLayout(new BorderLayout());
 
         postExpressionLabel = new JLabel("  ");
         postExpressionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -44,8 +44,10 @@ public class CalculatorGUI extends JFrame{
         expressionField = new JTextField();
         expressionField.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        numberDisplayPanel.add(postExpressionLabel, BorderLayout.NORTH);
-        numberDisplayPanel.add(expressionField, BorderLayout.CENTER);
+//        numberDisplayPanel.add(postExpressionLabel, BorderLayout.NORTH);
+//        numberDisplayPanel.add(expressionField, BorderLayout.SOUTH);
+        numberDisplayPanel.add(postExpressionLabel);
+        numberDisplayPanel.add(expressionField);
 
         add(numberDisplayPanel, BorderLayout.CENTER);
 
