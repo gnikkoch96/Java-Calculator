@@ -5,7 +5,6 @@
 
 import org.apache.commons.lang3.StringUtils;
 import org.mariuszgromada.math.mxparser.Expression;
-import org.mariuszgromada.math.mxparser.mathcollection.Evaluate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +14,7 @@ import java.awt.event.ActionListener;
 public class ButtonManager extends JPanel implements ActionListener {
     private static boolean pressedEqual = false; // used to reset the expression field for the next input
     private static boolean pressedNonNumeric = false;
+    private static boolean pressedNumeric = false;
 
     private CalculatorGUI calculator;
 
@@ -38,6 +38,8 @@ public class ButtonManager extends JPanel implements ActionListener {
 
         // easier way to check if the button pressed was numeric
         if(StringUtils.isNumeric(action)){
+            pressedNumeric = true;
+
             if(pressedEqual && pressedNonNumeric){
                 pressedEqual = false;
                 pressedNonNumeric = false;
@@ -46,8 +48,15 @@ public class ButtonManager extends JPanel implements ActionListener {
                 calculator.getExpressionField().setText(calculator.getExpressionField().getText() + action);
             }
         }else{
-            pressedNonNumeric = true;
-            calculator.getExpressionField().setText(checkAction(action));
+            System.out.println(pressedNumeric);
+            if(pressedNumeric){
+                pressedEqual = false;
+                pressedNumeric = false;
+                pressedNonNumeric = true;
+                calculator.getExpressionField().setText(checkAction(action));
+            }else{ // change the arithmetic/expression
+                calculator.getExpressionField().setText();
+            }
         }
     }
 
@@ -143,14 +152,17 @@ public class ButtonManager extends JPanel implements ActionListener {
             case "=":
                 //test if the expression can be evaluated first
                 Expression e = new Expression(expression);
-                System.out.println(e.calculate());
-                calculator.getPostExpressionLabel().setText(expression + action);
 
                 //this should be true only if the calculation was possible
                 pressedEqual = true;
-                return Double.toString(e.calculate());
+                if(!Double.toString(e.calculate()).equals("NaN")){
+                    calculator.getPostExpressionLabel().setText(expression + action);
+                    return Double.toString(e.calculate());
+                }else{
+                    pressedNonNumeric = true;
+                    return "Error: Incorrect Format";
+                }
         }
-
         return null;
     }
 }
