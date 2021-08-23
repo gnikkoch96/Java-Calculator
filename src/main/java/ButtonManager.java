@@ -4,6 +4,8 @@
 */
 
 import org.apache.commons.lang3.StringUtils;
+import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.mathcollection.Evaluate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ButtonManager extends JPanel implements ActionListener {
+    private static boolean pressedEqual = false; // used to reset the expression field for the next input
+    private static boolean pressedNonNumeric = false;
+
     private CalculatorGUI calculator;
 
     public ButtonManager(CalculatorGUI calculator){
@@ -24,6 +29,25 @@ public class ButtonManager extends JPanel implements ActionListener {
             JButton button = new JButton(addCaptionToButton(i));
             button.addActionListener(this);
             add(button);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String action = e.getActionCommand();
+
+        // easier way to check if the button pressed was numeric
+        if(StringUtils.isNumeric(action)){
+            if(pressedEqual && pressedNonNumeric){
+                pressedEqual = false;
+                pressedNonNumeric = false;
+                calculator.getExpressionField().setText(action);
+            }else{
+                calculator.getExpressionField().setText(calculator.getExpressionField().getText() + action);
+            }
+        }else{
+            pressedNonNumeric = true;
+            calculator.getExpressionField().setText(checkAction(action));
         }
     }
 
@@ -69,7 +93,7 @@ public class ButtonManager extends JPanel implements ActionListener {
             case 18:
                 return "9";
             case 19:
-                return "X";
+                return "*";
             case 20:
                 return "10^x";
             case 21:
@@ -105,13 +129,28 @@ public class ButtonManager extends JPanel implements ActionListener {
         return null; // means there is an error
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String action = e.getActionCommand();
+    private String checkAction(String action){
+        String expression = calculator.getExpressionField().getText();
 
-        // easier way to check if the button pressed was numeric
-        if(StringUtils.isNumeric(action)){
-            calculator.getExpressionField().setText(calculator.getExpressionField().getText() + action);
+        switch(action){
+            case "x^2":
+                return "";
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+                return expression + action;
+            case "=":
+                //test if the expression can be evaluated first
+                Expression e = new Expression(expression);
+                System.out.println(e.calculate());
+                calculator.getPostExpressionLabel().setText(expression + action);
+
+                //this should be true only if the calculation was possible
+                pressedEqual = true;
+                return Double.toString(e.calculate());
         }
+
+        return null;
     }
 }
