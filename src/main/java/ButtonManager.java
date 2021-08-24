@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 
 public class ButtonManager extends JPanel implements ActionListener {
     private static boolean pressedEqual = false; // used to reset the expression field for the next input
-    private static boolean pressedNonNumeric = false;
     private static boolean pressedNumeric = false;
 
     private JTextField expressionField;
@@ -41,11 +40,11 @@ public class ButtonManager extends JPanel implements ActionListener {
 
         // easier way to check if the button pressed was numeric
         if(StringUtils.isNumeric(action)){
-            pressedNumeric = true;
+            boolean resetTextField = pressedEqual && pressedNumeric;
 
-            if(pressedEqual && pressedNonNumeric){
+            pressedNumeric = true;
+            if(resetTextField){
                 pressedEqual = false;
-                pressedNonNumeric = false;
                 expressionField.setText(action);
             }else{
                 expressionField.setText(expression + action);
@@ -54,11 +53,12 @@ public class ButtonManager extends JPanel implements ActionListener {
             if(pressedNumeric || action.equals("=")){
                 pressedEqual = false;
                 pressedNumeric = false;
-                pressedNonNumeric = true;
                 expressionField.setText(checkAction(action));
             }else{ // change the arithmetic/expression
-                String expressionSubstring = expression.substring(0, expression.length() - 1);
-                expressionField.setText(expressionSubstring + action);
+                if(!expression.isEmpty()){
+                    String expressionSubstring = expression.substring(0, expression.length() - 1);
+                    expressionField.setText(expressionSubstring + action);
+                }
             }
         }
     }
@@ -145,26 +145,34 @@ public class ButtonManager extends JPanel implements ActionListener {
         String expression = expressionField.getText();
 
         switch(action){
-            case "x^2":
+            case "C":
                 return "";
+            case "x^2":
+            case "sqrt(x)":
+                Expression e = new Expression(expression);
+
+                if(action.equals("sqrt(x)")){
+                    e.setExpressionString("sqrt(" + e.calculate() +")");
+                }
+
+                return Double.toString(e.calculate());
             case "+":
             case "-":
             case "*":
             case "/":
                 return expression + action;
-            case "=":
-                //test if the expression can be evaluated first
-                Expression e = new Expression(expression);
-
-                //this should be true only if the calculation was possible
-                pressedEqual = true;
-                if(!Double.toString(e.calculate()).equals("NaN")){
-                    postExpressionLabel.setText(expression + action);
-                    return Double.toString(e.calculate());
-                }else{
-                    pressedNonNumeric = true;
-                    return "Error: Incorrect Format";
-                }
+//            case "=":
+//                //test if the expression can be evaluated first
+//                Expression e = new Expression(expression);
+//
+//                //this should be true only if the calculation was possible
+//                pressedEqual = true;
+//                if(!Double.toString(e.calculate()).equals("NaN")){
+//                    postExpressionLabel.setText(expression + action);
+//                    return Double.toString(e.calculate());
+//                }else{
+//                    return "Error: Incorrect Format";
+//                }
         }
         return null;
     }
