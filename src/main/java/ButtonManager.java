@@ -16,10 +16,12 @@ public class ButtonManager extends JPanel implements ActionListener {
     private static boolean pressedNonNumeric = false;
     private static boolean pressedNumeric = false;
 
-    private CalculatorGUI calculator;
+    private JTextField expressionField;
+    private JLabel postExpressionLabel;
 
     public ButtonManager(CalculatorGUI calculator){
-        this.calculator = calculator;
+        expressionField = calculator.getExpressionField();
+        postExpressionLabel = calculator.getPostExpressionLabel();
         setLayout(new GridLayout(0,5));
         addButtons();
     }
@@ -35,6 +37,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
+        String expression = expressionField.getText();
 
         // easier way to check if the button pressed was numeric
         if(StringUtils.isNumeric(action)){
@@ -43,19 +46,19 @@ public class ButtonManager extends JPanel implements ActionListener {
             if(pressedEqual && pressedNonNumeric){
                 pressedEqual = false;
                 pressedNonNumeric = false;
-                calculator.getExpressionField().setText(action);
+                expressionField.setText(action);
             }else{
-                calculator.getExpressionField().setText(calculator.getExpressionField().getText() + action);
+                expressionField.setText(expression + action);
             }
         }else{
-            System.out.println(pressedNumeric);
-            if(pressedNumeric){
+            if(pressedNumeric || action.equals("=")){
                 pressedEqual = false;
                 pressedNumeric = false;
                 pressedNonNumeric = true;
-                calculator.getExpressionField().setText(checkAction(action));
+                expressionField.setText(checkAction(action));
             }else{ // change the arithmetic/expression
-                calculator.getExpressionField().setText();
+                String expressionSubstring = expression.substring(0, expression.length() - 1);
+                expressionField.setText(expressionSubstring + action);
             }
         }
     }
@@ -139,7 +142,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     }
 
     private String checkAction(String action){
-        String expression = calculator.getExpressionField().getText();
+        String expression = expressionField.getText();
 
         switch(action){
             case "x^2":
@@ -156,7 +159,7 @@ public class ButtonManager extends JPanel implements ActionListener {
                 //this should be true only if the calculation was possible
                 pressedEqual = true;
                 if(!Double.toString(e.calculate()).equals("NaN")){
-                    calculator.getPostExpressionLabel().setText(expression + action);
+                    postExpressionLabel.setText(expression + action);
                     return Double.toString(e.calculate());
                 }else{
                     pressedNonNumeric = true;
