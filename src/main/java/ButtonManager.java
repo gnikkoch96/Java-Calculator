@@ -12,8 +12,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ButtonManager extends JPanel implements ActionListener {
-    private static boolean pressedEqual = false; // used to reset the expression field for the next input
+    // check for conditions
+    private static boolean pressedEqual = false;
     private static boolean pressedNumeric = false;
+    private static boolean pressedNonNumeric = false;
 
     private JTextField expressionField;
     private JLabel postExpressionLabel;
@@ -38,11 +40,9 @@ public class ButtonManager extends JPanel implements ActionListener {
         String action = e.getActionCommand();
         String expression = expressionField.getText();
 
-        // easier way to check if the button pressed was numeric
         if(StringUtils.isNumeric(action)){
-            boolean resetTextField = pressedEqual && pressedNumeric;
-
             pressedNumeric = true;
+            boolean resetTextField = pressedEqual && pressedNumeric;
             if(resetTextField){
                 pressedEqual = false;
                 expressionField.setText(action);
@@ -51,13 +51,17 @@ public class ButtonManager extends JPanel implements ActionListener {
             }
         }else{
             if(pressedNumeric || action.equals("=")){
-                pressedEqual = false;
                 pressedNumeric = false;
                 expressionField.setText(checkAction(action));
-            }else{ // change the arithmetic/expression
+            }else{ // change the arithmetic
                 if(!expression.isEmpty()){
-                    String expressionSubstring = expression.substring(0, expression.length() - 1);
-                    expressionField.setText(expressionSubstring + action);
+                    if(pressedNonNumeric){
+                        String expressionSubstring = expression.substring(0, expression.length() - 1);
+                        expressionField.setText(expressionSubstring + action);
+                    }else{
+                        pressedNonNumeric = true;
+                        expressionField.setText(checkAction(action));
+                    }
                 }
             }
         }
@@ -147,32 +151,28 @@ public class ButtonManager extends JPanel implements ActionListener {
         switch(action){
             case "C":
                 return "";
-            case "x^2":
-            case "sqrt(x)":
-                Expression e = new Expression(expression);
-
-                if(action.equals("sqrt(x)")){
-                    e.setExpressionString("sqrt(" + e.calculate() +")");
-                }
-
-                return Double.toString(e.calculate());
             case "+":
             case "-":
             case "*":
             case "/":
                 return expression + action;
-//            case "=":
-//                //test if the expression can be evaluated first
-//                Expression e = new Expression(expression);
-//
-//                //this should be true only if the calculation was possible
-//                pressedEqual = true;
-//                if(!Double.toString(e.calculate()).equals("NaN")){
-//                    postExpressionLabel.setText(expression + action);
-//                    return Double.toString(e.calculate());
-//                }else{
-//                    return "Error: Incorrect Format";
-//                }
+            case "x^2":
+            case "sqrt(x)":
+            case "=":
+                Expression e = new Expression(expression);
+
+                if(action.equals("sqrt(x)")){
+                    e.setExpressionString("sqrt(" + e.calculate() +")");
+                }else if(action.equals("=")){
+                    pressedEqual = true;
+                }
+
+                if(!Double.toString(e.calculate()).equals("NaN")){
+                    postExpressionLabel.setText(expression + action);
+                    return Double.toString(e.calculate());
+                }else{
+                    return "Error: Incorrect Format";
+                }
         }
         return null;
     }
