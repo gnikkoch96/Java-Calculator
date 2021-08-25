@@ -37,30 +37,38 @@ public class ButtonManager extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        updateExpressionToField(e);
+    }
+
+    private void updateExpressionToField(ActionEvent e){
         String action = e.getActionCommand();
         String expression = expressionField.getText();
 
         if(StringUtils.isNumeric(action)){
             pressedNumeric = true;
-            boolean resetTextField = pressedEqual && pressedNumeric;
+            boolean resetTextField = pressedEqual && pressedNumeric && !pressedNonNumeric;
+
+            pressedNonNumeric = false;
+            pressedEqual = false;
             if(resetTextField){
-                pressedEqual = false;
                 expressionField.setText(action);
             }else{
                 expressionField.setText(expression + action);
             }
         }else{
-            if(pressedNumeric || action.equals("=")){
+            // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
+            if(pressedNumeric || action.equals("=") || !pressedNonNumeric){
                 pressedNumeric = false;
+
+                if(!action.equals("=")) pressedNonNumeric = true;
+
                 expressionField.setText(checkAction(action));
-            }else{ // change the arithmetic
+            }else{
                 if(!expression.isEmpty()){
+                    // replace the arithmetic symbol
                     if(pressedNonNumeric){
                         String expressionSubstring = expression.substring(0, expression.length() - 1);
                         expressionField.setText(expressionSubstring + action);
-                    }else{
-                        pressedNonNumeric = true;
-                        expressionField.setText(checkAction(action));
                     }
                 }
             }
@@ -168,7 +176,8 @@ public class ButtonManager extends JPanel implements ActionListener {
                 }
 
                 if(!Double.toString(e.calculate()).equals("NaN")){
-                    postExpressionLabel.setText(expression + action);
+                    if(action.equals("=")) postExpressionLabel.setText(expression + action);
+                    else postExpressionLabel.setText(action + expression);
                     return Double.toString(e.calculate());
                 }else{
                     return "Error: Incorrect Format";
