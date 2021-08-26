@@ -16,6 +16,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     private static boolean pressedEqual = false;
     private static boolean pressedNumeric = false;
     private static boolean pressedNonNumeric = false;
+    private static boolean error = false;
 
     private JTextField expressionField;
     private JLabel postExpressionLabel;
@@ -46,32 +47,92 @@ public class ButtonManager extends JPanel implements ActionListener {
 
         if(StringUtils.isNumeric(action)){
             pressedNumeric = true;
-            boolean resetTextField = pressedEqual && pressedNumeric && !pressedNonNumeric;
+            boolean resetTextField = (pressedEqual
+                    && pressedNumeric
+                    && !pressedNonNumeric)
+                    || error;
 
             pressedNonNumeric = false;
             pressedEqual = false;
+
             if(resetTextField){
+                error = false;
                 expressionField.setText(action);
             }else{
                 expressionField.setText(expression + action);
             }
+
         }else{
             // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
             if(pressedNumeric || action.equals("=") || !pressedNonNumeric){
                 pressedNumeric = false;
-
                 if(!action.equals("=")) pressedNonNumeric = true;
 
-                expressionField.setText(checkAction(action));
+                expressionField.setText(updateExpression(action));
             }else{
                 if(!expression.isEmpty()){
                     // replace the arithmetic symbol
                     if(pressedNonNumeric){
-                        String expressionSubstring = expression.substring(0, expression.length() - 1);
+                        String expressionSubstring = expression.substring(0,
+                                expression.length() - 1);
                         expressionField.setText(expressionSubstring + action);
                     }
                 }
             }
+        }
+    }
+
+    private String updateExpression(String action){
+        String expression = expressionField.getText();
+
+        switch(action){
+            case "C":
+                return "";
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+            case "mod":
+                if(action.equals("mod")) action = "#";
+                return expression + action;
+            case "x^2":
+            case "sqrt(x)":
+            case "=":
+                Expression e = createUnaryExpression(expression, action);
+                return executeCalculation(e, expression, action);
+        }
+        return null;
+    }
+
+    private Expression createUnaryExpression(String expression, String action){
+        String newExpression = expression; // default is expression
+
+        switch(action){
+            case "sqrt(x)":
+                newExpression = "sqrt(" + expression + ")";
+                break;
+            case "x^2":
+                newExpression = "sqr(" + expression + ")";
+                break;
+        }
+        return new Expression(newExpression);
+    }
+
+    /*
+        e - expression to be calculated (used for result)
+        expression & action is preserved to update the postExpressionLabel
+     */
+    private String executeCalculation(Expression e, String expression, String action){
+        if(!Double.toString(e.calculate()).equals("NaN")){
+            if(action.equals("=")) {
+                pressedEqual = true;
+                postExpressionLabel.setText(expression + action);
+            }
+            else postExpressionLabel.setText(action + expression);
+            return Double.toString(e.calculate());
+        }else{
+            error = true;
+            return "Error: Incorrect Format";
         }
     }
 
@@ -151,38 +212,5 @@ public class ButtonManager extends JPanel implements ActionListener {
         }
 
         return null; // means there is an error
-    }
-
-    private String checkAction(String action){
-        String expression = expressionField.getText();
-
-        switch(action){
-            case "C":
-                return "";
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-                return expression + action;
-            case "x^2":
-            case "sqrt(x)":
-            case "=":
-                Expression e = new Expression(expression);
-
-                if(action.equals("sqrt(x)")){
-                    e.setExpressionString("sqrt(" + e.calculate() +")");
-                }else if(action.equals("=")){
-                    pressedEqual = true;
-                }
-
-                if(!Double.toString(e.calculate()).equals("NaN")){
-                    if(action.equals("=")) postExpressionLabel.setText(expression + action);
-                    else postExpressionLabel.setText(action + expression);
-                    return Double.toString(e.calculate());
-                }else{
-                    return "Error: Incorrect Format";
-                }
-        }
-        return null;
     }
 }
