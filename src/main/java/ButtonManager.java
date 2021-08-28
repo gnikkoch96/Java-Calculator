@@ -15,7 +15,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     // check for conditions
     private static boolean pressedEqual = false;
     private static boolean pressedNumeric = false;
-    private static boolean pressedNonNumeric = false;
+    private static boolean pressedArithmetic = false;
     private static boolean pressedUnaryFunction = false;
     private static boolean error = false;
 
@@ -39,25 +39,30 @@ public class ButtonManager extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        updateExpressionToField(e);
+        updateExpressionToField(e.getActionCommand());
     }
 
-    private void updateExpressionToField(ActionEvent e){
-        String action = e.getActionCommand();
+    private void updateExpressionToField(String action){
         String expression = expressionField.getText();
 
-        boolean isConstant = StringUtils.isNumeric(action)
+        boolean isNumericOrConstant = StringUtils.isNumeric(action)
                 || action.equals("pi")
                 || action.equals("e");
 
-        if(isConstant){
+        boolean isArithmetic = action.equals("+")
+                || action.equals("-")
+                || action.equals("*")
+                || action.equals("/")
+                || action.equals("mod");
+
+        if(isNumericOrConstant){
             pressedNumeric = true;
             boolean resetTextField = ((pressedEqual || pressedUnaryFunction)
                     && pressedNumeric
-                    && !pressedNonNumeric)
+                    && !pressedArithmetic)
                     || error;
 
-            pressedNonNumeric = false;
+            pressedArithmetic = false;
             pressedEqual = false;
             pressedUnaryFunction = false;
 
@@ -68,22 +73,26 @@ public class ButtonManager extends JPanel implements ActionListener {
                 expressionField.setText(expression + action);
             }
 
-        }else{
+        }else if(isArithmetic){
             // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
-            if(pressedNumeric || action.equals("=") || !pressedNonNumeric){
+            // test for !pressedArithmetic to check if we need to add the arith symbol or replace it
+            if(pressedNumeric  || !pressedArithmetic){
                 pressedNumeric = false;
-                if(!action.equals("=")) pressedNonNumeric = true;
-
+                pressedArithmetic = true;
                 expressionField.setText(updateExpression(action));
             }else{
                 if(!expression.isEmpty()){
                     // replace the arithmetic symbol
-                    if(pressedNonNumeric){
+                    if(pressedArithmetic){
                         String expressionSubstring = expression.substring(0,
                                 expression.length() - 1);
                         expressionField.setText(expressionSubstring + action);
                     }
                 }
+            }
+        }else{ // it is a unary expression
+            if(action.equals("=")){
+                expressionField.setText(updateExpression(action));
             }
         }
     }
