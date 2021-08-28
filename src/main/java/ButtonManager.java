@@ -16,6 +16,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     private static boolean pressedEqual = false;
     private static boolean pressedNumeric = false;
     private static boolean pressedNonNumeric = false;
+    private static boolean pressedUnaryFunction = false;
     private static boolean error = false;
 
     private JTextField expressionField;
@@ -45,15 +46,20 @@ public class ButtonManager extends JPanel implements ActionListener {
         String action = e.getActionCommand();
         String expression = expressionField.getText();
 
-        if(StringUtils.isNumeric(action)){
+        boolean isConstant = StringUtils.isNumeric(action)
+                || action.equals("pi")
+                || action.equals("e");
+
+        if(isConstant){
             pressedNumeric = true;
-            boolean resetTextField = (pressedEqual
+            boolean resetTextField = ((pressedEqual || pressedUnaryFunction)
                     && pressedNumeric
                     && !pressedNonNumeric)
                     || error;
 
             pressedNonNumeric = false;
             pressedEqual = false;
+            pressedUnaryFunction = false;
 
             if(resetTextField){
                 error = false;
@@ -93,11 +99,17 @@ public class ButtonManager extends JPanel implements ActionListener {
             case "*":
             case "/":
             case "mod":
+            case "x^y":
+            case "n!":
                 if(action.equals("mod")) action = "#";
+                else if(action.equals("x^y")) action = "^";
+                else if(action.equals("n!")) action = "!";
                 return expression + action;
             case "x^2":
             case "sqrt(x)":
             case "=":
+            case "log":
+            case "abs":
                 Expression e = createUnaryExpression(expression, action);
                 return executeCalculation(e, expression, action);
         }
@@ -105,16 +117,37 @@ public class ButtonManager extends JPanel implements ActionListener {
     }
 
     private Expression createUnaryExpression(String expression, String action){
-        String newExpression = expression; // default is expression
+        String newExpression = null;
 
         switch(action){
             case "sqrt(x)":
-                newExpression = "sqrt(" + expression + ")";
+                newExpression = "sqrt(";
                 break;
             case "x^2":
-                newExpression = "sqr(" + expression + ")";
+                newExpression = "("; // n: I'm thinking this could be better
+                break;
+            case "log":
+                newExpression = "log2(";
+                break;
+            case "exp(x)":
+                newExpression = "exp(";
+                break;
+            case "|x|":
+                newExpression = "abs(";
                 break;
         }
+
+        if(newExpression == null){ // pressed equal, so no change is required
+            newExpression = expression;
+        }else{
+            pressedUnaryFunction = true;
+            newExpression += expression + ")";
+
+            if(action.equals("x^2")){
+                newExpression += "^2";
+            }
+        }
+
         return new Expression(newExpression);
     }
 
