@@ -83,6 +83,8 @@ public class ButtonManager extends JPanel implements ActionListener {
             // test for !pressedArithmetic to check if we need to add the arith symbol or replace it
             if(pressedNumeric && !pressedArithmetic){
                 pressedNumeric = false;
+                pressedEqual = false;
+                pressedUnaryFunction = false;
                 pressedArithmetic = true;
                 expressionField.setText(updateExpression(action, ARITHMETIC));
             }else{
@@ -96,14 +98,19 @@ public class ButtonManager extends JPanel implements ActionListener {
                 }
             }
         }else{ // it is a unary expression
-            if(action.equals("=")) {
-                pressedEqual = true;
-                expressionField.setText(updateExpression(action, EQUAL));
+            // makes sure that a number is present before user is allowed to input equal or a unary function
+            if(expression.length() > 0){
+                if(action.equals("=")) {
+                    pressedEqual = true;
+                    expressionField.setText(updateExpression(action, EQUAL));
+                }
+                else {
+                    if(!action.equals("(") && !action.equals(")") && !action.equals(".")) // prevents from resetting the field
+                        pressedUnaryFunction = true;
+                    expressionField.setText(updateExpression(action, UNARY));
+                }
             }
-            else {
-                pressedUnaryFunction = true;
-                expressionField.setText(updateExpression(action, UNARY));
-            }
+
         }
     }
 
@@ -118,10 +125,10 @@ public class ButtonManager extends JPanel implements ActionListener {
         }else if(action.equals("del")){
             if(expression.length() > 0) return expression.substring(0, expression.length() - 1);
             else return expression;
-        } else if(actionType.equals(ARITHMETIC) || action.equals("(") || action.equals(")") || action.equals(".")){
+        }else if(actionType.equals(ARITHMETIC) || action.equals("(") || action.equals(")") || action.equals(".")){
             if(action.equals("x^y")) action = "^"; // update to correct symbol on the textfield
             return expression + action;
-        }else{ // actionType = unary || equal
+        }else { // actionType = unary || equal
             Expression e = createUnaryExpression(expression, action);
             return executeCalculation(e, expression, action);
         }
@@ -157,6 +164,9 @@ public class ButtonManager extends JPanel implements ActionListener {
                 break;
             case "10^x":
                 newExpression = "10^(";
+                break;
+            case "+/-":
+                newExpression = "-1*(";
                 break;
         }
 
