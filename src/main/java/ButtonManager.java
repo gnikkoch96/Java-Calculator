@@ -12,6 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ButtonManager extends JPanel implements ActionListener {
+    // to prevent hard coding the action type
+    private static final String ARITHMETIC = "arith";
+    private static final String UNARY = "unary";
+    private static final String EQUAL = "equal";
+
     // check for conditions
     private static boolean pressedEqual = false;
     private static boolean pressedNumeric = false;
@@ -53,18 +58,18 @@ public class ButtonManager extends JPanel implements ActionListener {
                 || action.equals("-")
                 || action.equals("*")
                 || action.equals("/")
-                || action.equals("mod");
+                || action.equals("#")
+                || action.equals("x^y");
 
         if(isNumericOrConstant){
-            pressedNumeric = true;
             boolean resetTextField = ((pressedEqual || pressedUnaryFunction)
-                    && pressedNumeric
                     && !pressedArithmetic)
                     || error;
 
             pressedArithmetic = false;
             pressedEqual = false;
             pressedUnaryFunction = false;
+            pressedNumeric = true;
 
             if(resetTextField){
                 error = false;
@@ -76,10 +81,10 @@ public class ButtonManager extends JPanel implements ActionListener {
         }else if(isArithmetic){
             // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
             // test for !pressedArithmetic to check if we need to add the arith symbol or replace it
-            if(pressedNumeric  || !pressedArithmetic){
+            if(pressedNumeric && !pressedArithmetic){
                 pressedNumeric = false;
                 pressedArithmetic = true;
-                expressionField.setText(updateExpression(action));
+                expressionField.setText(updateExpression(action, ARITHMETIC));
             }else{
                 if(!expression.isEmpty()){
                     // replace the arithmetic symbol
@@ -91,13 +96,22 @@ public class ButtonManager extends JPanel implements ActionListener {
                 }
             }
         }else{ // it is a unary expression
-            if(action.equals("=")){
-                expressionField.setText(updateExpression(action));
+            if(action.equals("=")) {
+                pressedEqual = true;
+                expressionField.setText(updateExpression(action, EQUAL));
+            }
+            else {
+                pressedUnaryFunction = true;
+                expressionField.setText(updateExpression(action, UNARY));
             }
         }
     }
 
-    private String updateExpression(String action){
+    /*
+        actionType - stores in "arith", "unary", or "equal" which will help organize
+        the code
+     */
+    private String updateExpression(String action, String actionType){
         String expression = expressionField.getText();
 
         switch(action){
@@ -107,18 +121,16 @@ public class ButtonManager extends JPanel implements ActionListener {
             case "-":
             case "*":
             case "/":
-            case "mod":
+            case "#":
             case "x^y":
-            case "n!":
-                if(action.equals("mod")) action = "#";
-                else if(action.equals("x^y")) action = "^";
-                else if(action.equals("n!")) action = "!";
+                if(action.equals("x^y")) action = "^";
                 return expression + action;
             case "x^2":
             case "sqrt(x)":
             case "=":
             case "log":
             case "abs":
+            case "n!":
                 Expression e = createUnaryExpression(expression, action);
                 return executeCalculation(e, expression, action);
         }
@@ -144,19 +156,22 @@ public class ButtonManager extends JPanel implements ActionListener {
             case "|x|":
                 newExpression = "abs(";
                 break;
+            case "n!":
+                newExpression = expression + "!";
+                break;
         }
 
         if(newExpression == null){ // pressed equal, so no change is required
             newExpression = expression;
         }else{
-            pressedUnaryFunction = true;
-            newExpression += expression + ")";
-
-            if(action.equals("x^2")){
-                newExpression += "^2";
+            if(!action.equals("n!")){
+                newExpression += expression + ")";
+                if(action.equals("x^2")){
+                    newExpression += "^2";
+                }
             }
-        }
 
+        }
         return new Expression(newExpression);
     }
 
@@ -167,10 +182,9 @@ public class ButtonManager extends JPanel implements ActionListener {
     private String executeCalculation(Expression e, String expression, String action){
         if(!Double.toString(e.calculate()).equals("NaN")){
             if(action.equals("=")) {
-                pressedEqual = true;
                 postExpressionLabel.setText(expression + action);
             }
-            else postExpressionLabel.setText(action + expression);
+            else postExpressionLabel.setText(action + expression); // for unary functions
             return Double.toString(e.calculate());
         }else{
             error = true;
@@ -200,7 +214,7 @@ public class ButtonManager extends JPanel implements ActionListener {
             case 8:
                 return "exp";
             case 9:
-                return "mod";
+                return "#";
             case 10:
                 return "sqrt(x)";
             case 11:
