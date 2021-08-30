@@ -37,6 +37,8 @@ public class ButtonManager extends JPanel implements ActionListener {
     private void addButtons(){
         for(int i = 0; i < 35; i++){
             JButton button = new JButton(addCaptionToButton(i));
+            button.setFont(new Font("Dialog", Font.BOLD, 16));
+            button.setBackground(Color.CYAN);
             button.addActionListener(this);
             add(button);
         }
@@ -112,7 +114,6 @@ public class ButtonManager extends JPanel implements ActionListener {
                     expressionField.setText(updateExpression(action, UNARY));
                 }
             }
-
         }
     }
 
