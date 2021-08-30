@@ -59,7 +59,8 @@ public class ButtonManager extends JPanel implements ActionListener {
                 || action.equals("*")
                 || action.equals("/")
                 || action.equals("#")
-                || action.equals("x^y");
+                || action.equals("x^y")
+                || action.equals("exp");
 
         if(isNumericOrConstant){
             boolean resetTextField = ((pressedEqual || pressedUnaryFunction)
@@ -79,6 +80,7 @@ public class ButtonManager extends JPanel implements ActionListener {
             }
 
         }else if(isArithmetic){
+            if(action.equals("exp")) action = "e";
             // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
             // test for !pressedArithmetic to check if we need to add the arith symbol or replace it
             if(pressedNumeric && !pressedArithmetic){
