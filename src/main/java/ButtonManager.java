@@ -108,33 +108,23 @@ public class ButtonManager extends JPanel implements ActionListener {
     }
 
     /*
-        actionType - stores in "arith", "unary", or "equal" which will help organize
-        the code
+        actionType - stores in "arith", "unary", or "equal"
      */
     private String updateExpression(String action, String actionType){
         String expression = expressionField.getText();
 
-        switch(action){
-            case "C":
-                return "";
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-            case "#":
-            case "x^y":
-                if(action.equals("x^y")) action = "^";
-                return expression + action;
-            case "x^2":
-            case "sqrt(x)":
-            case "=":
-            case "log":
-            case "abs":
-            case "n!":
-                Expression e = createUnaryExpression(expression, action);
-                return executeCalculation(e, expression, action);
+        if(action.equals("C")){
+            return "";
+        }else if(action.equals("del")){
+            if(expression.length() > 0) return expression.substring(0, expression.length() - 1);
+            else return expression;
+        } else if(actionType.equals(ARITHMETIC) || action.equals("(") || action.equals(")") || action.equals(".")){
+            if(action.equals("x^y")) action = "^"; // update to correct symbol on the textfield
+            return expression + action;
+        }else{ // actionType = unary || equal
+            Expression e = createUnaryExpression(expression, action);
+            return executeCalculation(e, expression, action);
         }
-        return null;
     }
 
     private Expression createUnaryExpression(String expression, String action){
@@ -159,6 +149,15 @@ public class ButtonManager extends JPanel implements ActionListener {
             case "n!":
                 newExpression = expression + "!";
                 break;
+            case "ln":
+                newExpression = "ln(";
+                break;
+            case "1/x":
+                newExpression = "1/(";
+                break;
+            case "10^x":
+                newExpression = "10^(";
+                break;
         }
 
         if(newExpression == null){ // pressed equal, so no change is required
@@ -170,7 +169,6 @@ public class ButtonManager extends JPanel implements ActionListener {
                     newExpression += "^2";
                 }
             }
-
         }
         return new Expression(newExpression);
     }
@@ -184,7 +182,9 @@ public class ButtonManager extends JPanel implements ActionListener {
             if(action.equals("=")) {
                 postExpressionLabel.setText(expression + action);
             }
-            else postExpressionLabel.setText(action + expression); // for unary functions
+            else {
+                postExpressionLabel.setText(e.getExpressionString()); // for unary functions
+            }
             return Double.toString(e.calculate());
         }else{
             error = true;
