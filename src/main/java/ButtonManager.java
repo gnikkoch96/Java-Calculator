@@ -137,7 +137,7 @@ public class ButtonManager extends JPanel implements ActionListener {
             else return expression;
         }else if(actionType.equals(ARITHMETIC) || action.equals("(") || action.equals(")") || action.equals(".")){
             return expression + action;
-        }else { // actionType = unary || equal
+        } else { // actionType = unary || equal
             Expression e = createUnaryExpression(expression, action);
             return executeCalculation(e, expression, action);
         }
