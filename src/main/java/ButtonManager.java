@@ -37,7 +37,7 @@ public class ButtonManager extends JPanel implements ActionListener {
     private void addButtons(){
         for(int i = 0; i < 35; i++){
             JButton button = new JButton(addCaptionToButton(i));
-            button.setFont(new Font("Dialog", Font.BOLD, 16));
+            button.setFont(new Font("Dialog", Font.BOLD, 15));
             button.setBackground(Color.CYAN);
             button.addActionListener(this);
             add(button);
@@ -82,10 +82,17 @@ public class ButtonManager extends JPanel implements ActionListener {
             }
 
         }else if(isArithmetic){
+            boolean resetTextField = error;
+
             if(action.equals("exp")) action = "e";
+            else if(action.equals("x^y")) action = "^"; // update to correct symbol on the textfield
+
             // either performs "=" action or makes sure that a numeric has been pressed before a nonnumeric gets added to the field
             // test for !pressedArithmetic to check if we need to add the arith symbol or replace it
-            if(pressedNumeric && !pressedArithmetic){
+            if(resetTextField){
+                pressedArithmetic = true;
+                expressionField.setText("0" + action);
+            }else if(pressedNumeric && !pressedArithmetic){
                 pressedNumeric = false;
                 pressedEqual = false;
                 pressedUnaryFunction = false;
@@ -129,7 +136,6 @@ public class ButtonManager extends JPanel implements ActionListener {
             if(expression.length() > 0) return expression.substring(0, expression.length() - 1);
             else return expression;
         }else if(actionType.equals(ARITHMETIC) || action.equals("(") || action.equals(")") || action.equals(".")){
-            if(action.equals("x^y")) action = "^"; // update to correct symbol on the textfield
             return expression + action;
         }else { // actionType = unary || equal
             Expression e = createUnaryExpression(expression, action);
@@ -191,7 +197,7 @@ public class ButtonManager extends JPanel implements ActionListener {
         expression & action is preserved to update the postExpressionLabel
      */
     private String executeCalculation(Expression e, String expression, String action){
-        if(!Double.toString(e.calculate()).equals("NaN")){
+        if(!Double.toString(e.calculate()).equals("NaN")){ // checks to see if something went wrong
             if(action.equals("=")) {
                 postExpressionLabel.setText(expression + action);
             }
