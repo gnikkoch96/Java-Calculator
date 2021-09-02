@@ -4,8 +4,6 @@
     a. What is it?
     b. (Optional) Why did you make it? (Wanted to do some projects using Java)
   2. Dependencies
-  3. What I learned
-  4. Conclusion
   5. Try it out yourself (mentione the .jar file located on root)
 -->
 
@@ -21,8 +19,8 @@ using Maven.</p>
 <li> StringUtils.isNumeric(String) - is used in the project to help determine if the user had entered a valid integer </li>
 <li> <a href="https://mathparser.org/"> Math Parser </a> - used to parse through the string expression and calculate said expresion </li>
 
-<h2> What I learned </h2>
-<li> 
+<h2> Try it out yourself </h2>
+<p> In the root directory there is a jar file that you can execute. </p>
 
 
 
