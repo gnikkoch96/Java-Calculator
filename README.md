@@ -17,7 +17,15 @@ using Maven.</p>
 
 <h2> Dependencies </h2>
 <li> StringUtils.isNumeric(String) - is used in the project to help determine if the user had entered a valid integer </li>
-<li> <a href="https://mathparser.org/"> Math Parser </a> - used to parse through the string expression and calculate said expresion </li>
+<ul> 
+<li><a href="https://mathparser.org/"> Math Parser </a> - used to parse through the string expression and calculate said expresion 
+   <ul>
+      <li> This dependency really made my project. If it weren't for this parser, I would have had to create a class like an ArithmeticManager that activates a method based on  
+        a button press </li>
+      <li> One thing that I could say about this parser is that the website seems outdated and kind of messy which made it troubling to look for the things I wanted </li> 
+  </ul>
+  </li>
+</ul>
 
 <h2> Try it out yourself </h2>
 <p> In the root directory there is a jar file that you can execute. </p>
