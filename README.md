@@ -2,9 +2,9 @@
   READ_ME STRUCTURE
   1. Introduction
     a. What is it?
-    b. (Optional) Why did you make it? (Wanted to do some projects using Java)
+    b. (Optional) Why did you make it? 
   2. Dependencies
-  5. Try it out yourself (mentione the .jar file located on root)
+  3. Try it out yourself (mentione the .jar file located on root)
 -->
 
 # Java-Calculator
